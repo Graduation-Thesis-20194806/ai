@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+
+  redis:
+    image: thesis-redis
+    container_name: thesis-redis
+    ports:
+      - 6380:6379
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
