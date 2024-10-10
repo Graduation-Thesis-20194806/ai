@@ -2,7 +2,7 @@ import enum
 
 from sqlalchemy import Column, Integer, String, Enum, Boolean, Text, JSON, ARRAY, DateTime, func, ForeignKey
 
-from app.models import Base
+from app.models.database import Base
 
 
 class ReportType(enum.Enum):

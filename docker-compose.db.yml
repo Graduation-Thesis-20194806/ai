@@ -1,9 +1,8 @@
 version: "3.8"
 
 services:
-
   redis:
-    image: thesis-redis
+    image: redis
     container_name: thesis-redis
     ports:
       - 6380:6379

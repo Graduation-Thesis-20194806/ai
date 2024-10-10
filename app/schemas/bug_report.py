@@ -1,25 +1,11 @@
 from datetime import datetime
 from typing import Optional, List
 
-from app.schemas import BaseSchema
+from app.models.bug_report import ReportType, Severity, ReportIssueType, ReportStatus
+from app.schemas.base import BaseSchema
 
-
-class ReportType:
-    pass
-
-
-class Severity:
-    pass
-
-
-class ReportIssueType:
-    pass
 
 class AdditionInfoSchema(BaseSchema):
-    pass
-
-
-class ReportStatus:
     pass
 
 
