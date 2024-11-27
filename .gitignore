@@ -1,3 +1,4 @@
 .env
 .idea
 localtest
+preprocessing/raw_dataset/*

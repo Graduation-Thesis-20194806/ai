@@ -16,6 +16,7 @@ python-multipart = "^0.0.17"
 python-dotenv = "^1.0.1"
 pyi18n-v2 = "^1.2.2"
 psycopg2-binary = "^2.9.10"
+litellm = "^1.52.16"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"

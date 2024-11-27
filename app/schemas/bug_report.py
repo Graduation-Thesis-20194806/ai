@@ -27,5 +27,6 @@ class BugReportBase(BaseSchema):
     url: str
     status: ReportStatus
     tags: Optional[List[str]]
+    groupId: Optional[int]
     created_at: datetime
     updated_at: Optional[datetime]

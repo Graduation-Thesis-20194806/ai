@@ -1,6 +1,7 @@
 import enum
 
 from sqlalchemy import Column, Integer, String, Enum, Boolean, Text, JSON, ARRAY, DateTime, func, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.models.database import Base
 
@@ -58,3 +59,6 @@ class BugReport(Base):
     tags = Column(ARRAY(Integer))
     created_at = Column('created_at', DateTime, server_default=func.now(), nullable=False)
     updated_at = Column('updated_at', DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    groupId = Column(Integer, ForeignKey('DuplicateGroup.id'), ondelete='SET NULL', nullable=True)
+    DuplicateGroup = relationship("DuplicateGroup", foreign_keys=[groupId])
