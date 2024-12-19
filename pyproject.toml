@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "ai"
+name = "app"
 version = "0.1.0"
 description = ""
-authors = ["namhoai <pionero.nam.can@alt.ai>"]
+authors = ["namhoai <ch.nam0121@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -17,6 +17,9 @@ python-dotenv = "^1.0.1"
 pyi18n-v2 = "^1.2.2"
 psycopg2-binary = "^2.9.10"
 litellm = "^1.52.16"
+redis = "^5.2.1"
+sentence-transformers = "^3.3.1"
+scikit-learn = "^1.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
@@ -26,3 +29,10 @@ isort = "^5.13.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+dev = "app.server:dev"
+start = "app.server:start"
+migrate_gen = "app.server:migrate_gen"
+migrate_run = "app.server:migrate_run"
+celery_worker = "app.server:celery_worker"

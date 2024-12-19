@@ -1,3 +1,4 @@
+import redis
 import uvicorn
 from fastapi import FastAPI
 from dotenv import load_dotenv
@@ -54,5 +55,5 @@ def celery_worker():
     #     f"celery -A app.utils.queue.celery_app worker --loglevel=info --concurrency=10 --max-tasks-per-child {getenv("MAX_TASKS_PER_CHILD")}"
     # )
     system(
-        f"celery -A app.utils.queue.celery_app worker --loglevel=info --pool threads --concurrency=10 --max-tasks-per-child {getenv("MAX_TASKS_PER_CHILD")}"
+        f"celery -A app.utils.queue.celery worker --loglevel=info --pool threads --concurrency=10 --max-tasks-per-child {getenv("MAX_TASKS_PER_CHILD")}"
     )

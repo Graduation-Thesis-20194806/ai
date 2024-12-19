@@ -8,3 +8,10 @@ class BaseSchema(BaseModel):
         populate_by_name=True,
         from_attributes=True,
     )
+
+class ProcessResponseSchema(BaseSchema):
+    success: bool = True
+    message: str| None = None
+
+class ProcessDto(BaseSchema):
+    report_id: int
