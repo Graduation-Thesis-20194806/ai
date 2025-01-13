@@ -1,9 +1,14 @@
 import json
+import os
+import shutil
+import zipfile
 from os import getenv
 
 import redis
+from botocore.exceptions import NoCredentialsError
 from celery import Celery
 
+from .aws import s3_client, send_message
 from .constant import MessageType, DuplicateLevel
 from .issue_type_process import issue_type_process
 from .llm_api import chat
@@ -42,9 +47,10 @@ def process_report(report_id: int):
             issue_type = i
             break
 
-    redis_client.publish(getenv('REPORT_PROCESSED_CHANNEL'), json.dumps(
-        {"type": MessageType.BUG_REPORT.value, "reportId": report_id, "issueType": issue_type.value}))
+    send_message(json.dumps(
+        {"type": MessageType.BUG_REPORT.value, "reportId": report_id, "issueType": issue_type.value}), MessageType.BUG_REPORT.value)
     return f"Report {report_id} processed successfully"
+
 
 @celery.task
 def process_duplicate(report_id: int):
@@ -70,9 +76,9 @@ def process_duplicate(report_id: int):
                 level = DuplicateLevel.HIGH.value
             dup_report_ids.append({"id": compare_report.id, "level": level})
         return_data["dupReportIds"] = dup_report_ids
-    redis_client.publish(getenv('REPORT_PROCESSED_CHANNEL'), json.dumps(return_data))
+        return_data["type"] = MessageType.BUG_DUPLICATE.value
+    send_message(json.dumps(return_data), MessageType.BUG_DUPLICATE.value)
     return f"Report {report_id} duplicate processed successfully"
-
 
 
 def encode_description(description: str, model):
@@ -86,10 +92,10 @@ def check_similarity(description1: str, description2: str, model):
     return similarity
 
 
-def check_dup_report(report1:BugReport, report2:BugReport):
+def check_dup_report(report1: BugReport, report2: BugReport):
     model = SentenceTransformer('bert-base-nli-mean-tokens')
     similarity = []
-    fields = ['expected_behavior', 'actual_result', 'steps_to_reproduce']
+    fields = ['steps_to_reproduce']
     sum = 0
     for field in fields:
         if not report1.__getattribute__(field) or not report2.__getattribute__(field):
@@ -102,5 +108,48 @@ def check_dup_report(report1:BugReport, report2:BugReport):
 
     if not len(similarity):
         return description_similarity
-    final_score = (float(sum/len(similarity))+description_similarity*2)/3
+    final_score = (float(sum / len(similarity)) + description_similarity * 2) / 3
     return final_score
+
+@celery.task
+def download_model():
+    inspect = celery.control.inspect()
+    active_tasks = inspect.active()
+    count = 0
+    if active_tasks:
+        for worker, tasks in active_tasks.items():
+            for task in tasks:
+                if task['name'] == 'app.utils.queue.download_model':
+                    count += 1
+                    if count >= 2:
+                        return f"Exist running Task app.utils.queue.download_model"
+    MODEL_FILE_NAME = 'paraphrase-multilingual-MiniLM-L12-v2'
+    MODEL_FOLDER = os.sep.join(["model", "rough_match_model"])
+    LOCAL_MODEL_PATH = os.sep.join([MODEL_FOLDER, MODEL_FILE_NAME])
+    ZIP_MODEL_PATH = f"{LOCAL_MODEL_PATH}.zip"
+
+    if not os.path.exists(LOCAL_MODEL_PATH):
+        if os.path.exists(MODEL_FOLDER):
+            shutil.rmtree(MODEL_FOLDER)
+            print(f"Folder '{MODEL_FOLDER}' has been deleted.")
+        parts = MODEL_FOLDER.split(os.sep)
+        current_path = None
+        for part in parts:
+            current_path = os.sep.join([current_path, part]) if current_path else part
+            if not os.path.exists(current_path):
+                os.makedirs(current_path)
+                print(f"Created folder: {current_path}")
+            else:
+                print(f"Folder already exists: {current_path}")
+        try:
+            s3_client.download_file(Bucket=os.getenv("S3_BUCKET_NAME"), Key=getenv('MODEL_S3_KEY'),
+                                    Filename=ZIP_MODEL_PATH)
+            extract_to = os.path.dirname(ZIP_MODEL_PATH)
+            with zipfile.ZipFile(ZIP_MODEL_PATH, 'r') as zip_ref:
+                zip_ref.extractall(extract_to)
+            os.remove(ZIP_MODEL_PATH)
+            print("Model downloaded successfully.")
+        except NoCredentialsError:
+            print("Credentials not available for AWS S3.")
+        except Exception as e:
+            print(f"An error occurred: {e}")

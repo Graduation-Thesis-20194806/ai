@@ -25,6 +25,8 @@ class ReportStatus(enum.Enum):
     IN_PROCESSING = "IN_PROCESSING"
     REJECTED = "REJECTED"
     DONE = "DONE"
+    REOPEN = "REOPEN"
+    CONFIRMED = "CONFIRMED"
 
 
 class ReportIssueType(enum.Enum):
@@ -47,7 +49,6 @@ class BugReport(Base):
     created_by_id = Column('created_by_id', Integer, nullable=False)
     project_id = Column('project_id', Integer, nullable=False)
     assigned_to = Column('assigned_to', Integer, nullable=True)
-    status_id = Column('statusId', Integer, nullable=True)
     steps_to_reproduce = Column('steps_to_reproduce', Text)
     expected_behavior = Column('expected_behavior', Text)
     actual_result = Column('actual_result', Text)

@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import redis
 import uvicorn
 from fastapi import FastAPI
@@ -10,10 +12,16 @@ load_dotenv()
 
 from .routes import app_router
 from .models.database import Base, engine
+from .utils.queue import download_model
 
 
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    download_model.delay()
+    yield
+    print('Shutdown')
 app = FastAPI(servers=[{"url": getenv("SERVER_URL")}])
 
 origins = ['*']

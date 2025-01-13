@@ -2,3 +2,4 @@
 .idea
 localtest
 preprocessing/raw_dataset/*
+crawler/result

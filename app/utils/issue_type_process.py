@@ -13,7 +13,7 @@ def issue_type_process(report: BugReport):
         - PERFORMANCE
         - SECURITY
         - NETWORK
-        - DATA
+        - DATA 
         - OTHER
         """
     completion = chat(model='gpt-4o-mini',

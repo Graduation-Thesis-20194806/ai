@@ -18,8 +18,13 @@ pyi18n-v2 = "^1.2.2"
 psycopg2-binary = "^2.9.10"
 litellm = "^1.52.16"
 redis = "^5.2.1"
+torch = [
+    { url = "https://download.pytorch.org/whl/cpu-cxx11-abi/torch-2.5.1%2Bcpu.cxx11.abi-cp312-cp312-linux_x86_64.whl", markers = "sys_platform == 'linux'", platform = "linux" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.5.1-cp312-none-macosx_11_0_arm64.whl", markers = "sys_platform == 'darwin' and platform_machine == 'arm64'", platform = "darwin" }]
 sentence-transformers = "^3.3.1"
 scikit-learn = "^1.6.0"
+transformers = "^4.47.1"
+boto3 = "^1.35.97"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
