@@ -63,10 +63,10 @@ def process_duplicate(report_id: int):
     if len(reports) == 0:
         return f"No Report similar to {report_id}"
     return_data = {"type": MessageType.BUG_DUPLICATE.value, "reportId": report_id}
+    dup_report_ids = []
     for compare_report in reports:
         similarity = check_dup_report(report, compare_report)
         print(compare_report.id, similarity)
-        dup_report_ids = []
         if similarity >= 0.5:
             if similarity < 0.7:
                 level = DuplicateLevel.LOW.value
@@ -75,8 +75,8 @@ def process_duplicate(report_id: int):
             else:
                 level = DuplicateLevel.HIGH.value
             dup_report_ids.append({"id": compare_report.id, "level": level})
-        return_data["dupReportIds"] = dup_report_ids
-        return_data["type"] = MessageType.BUG_DUPLICATE.value
+    return_data["dupReportIds"] = dup_report_ids
+    print(return_data)
     send_message(json.dumps(return_data), MessageType.BUG_DUPLICATE.value)
     return f"Report {report_id} duplicate processed successfully"
 

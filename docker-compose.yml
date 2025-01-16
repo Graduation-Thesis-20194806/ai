@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis
+    container_name: thesis-redis
+    ports:
+      - 6380:6379
+    networks:
+      - app-net
+
+  server:
+    build:
+      context: .
+    container_name: thesis-ai
+    ports:
+      - "8000:8000"
+    networks:
+      - app-net
+
+  worker:
+    build:
+      context: .
+    container_name: thesis-worker
+    entrypoint: poetry
+    command: run celery_worker
+    networks:
+      - app-net
+    depends_on:
+      - redis
+
+networks:
+  app-net:
+    driver: bridge
